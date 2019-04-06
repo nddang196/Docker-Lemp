@@ -1,0 +1,62 @@
+version: '3'
+services:
+    redis:
+        image: redis
+        ports:
+            - 6379
+    elasticsearch:
+        image: elasticsearch:5.2
+        ports:
+            - 9200
+    nginx:
+        build: ./docker/images/nginx
+        ports:
+            - "80:80"
+            - "443:443"
+        environment:
+            - SERVER_NAME=docker.local
+#            - PHP_SERVICE=php #default
+#            - PHP_PORT=9000 #default
+#            - ROOT_FOLDER=/project #default
+#            - IS_HTTPS=false #default
+#            - IS_MAGENTO=false #default
+#            - IS_MAGENTO_MULTI=false #default
+#            - MAGENTO_MODE=production #default
+#            - MAGENTO_RUN_TYPE=store #default
+        volumes:
+            - "./docker/logs/nginx/:/var/log/nginx/"
+            - ".:/project:rw"
+        depends_on:
+            - php
+    php:
+        build:
+            context: ./docker/images/php
+            args:
+                - VERSION=7.1
+        ports:
+            - 9000
+        environment:
+            - IS_ACTIVE_XDEBUG=true
+            - ENABLE_SENDMAIL=true
+            - CONFIG=
+                   date.timezone=Asia/Ho_Chi_Minh
+            #       config_name2=value2 ...
+        volumes:
+            - ".:/project:rw"
+        depends_on:
+            - mariadb
+            - redis
+            - elasticsearch
+    mariadb:
+        image: mariadb
+        ports:
+            - "3306:3306"
+        environment:
+            - MYSQL_DATABASE=
+            - MYSQL_USER=vothanhdber
+            - MYSQL_PASSWORD=vothanH@Pass
+            - MYSQL_ROOT_PASSWORD=rooT@Pass
+        volumes:
+            - dbdata:/var/lib/mysql
+volumes:
+    dbdata:
