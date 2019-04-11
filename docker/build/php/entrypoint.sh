@@ -23,6 +23,10 @@ if [[ "$IS_ACTIVE_XDEBUG" == "true" ]]; then
     docker-php-ext-enable xdebug
     echo 'Xdebug enabled'
 fi
+if [[ ! -z "${XDEBUG_REMOTE_HOST}" ]]; then
+    sed -i "/xdebug.remote_host/d" /usr/local/etc/php/conf.d/z-xdebug.ini
+	printf "\nxdebug.remote_host=${XDEBUG_REMOTE_HOST}" >> /usr/local/etc/php/conf.d/z-xdebug.ini
+fi
 
 # Config send mail
 if [[ "$ENABLE_SENDMAIL" == "true" ]]; then
