@@ -22,6 +22,7 @@ RUN apt-get update && \
 	    sudo \
 	    git \
 	    cron \
+	    unzip \
 	    curl
 
 # Configure the gd library
