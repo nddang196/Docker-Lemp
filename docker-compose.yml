@@ -10,7 +10,7 @@ services:
             - 9200
     nginx:
         build:
-            context: ./build/nginx
+            context: ${NGINX_DOCKERFILE}
             args:
                 - VERSION=${NGINX_VERSION}
         image: vtp_nginx:${NGINX_VERSION}
@@ -36,7 +36,7 @@ services:
             - php
     php:
         build:
-            context: ./build/php
+            context: ${PHP_DOCKERFILE}
             args:
                 - VERSION=${PHP_VERSION}
         image: vtp_fpm:${PHP_VERSION}

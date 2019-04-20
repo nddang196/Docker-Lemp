@@ -1,4 +1,4 @@
-ARG VERSION
+ARG VERSION=7.0
 
 FROM php:${VERSION}-fpm
 
@@ -17,6 +17,7 @@ RUN apt-get update && \
 	    libmcrypt-dev \
 	    libpng-dev \
 	    libxslt1-dev \
+	    libzip-dev \
 	    sendmail-bin \
 	    sendmail \
 	    sudo \
@@ -31,7 +32,10 @@ RUN docker-php-ext-configure \
   gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
 
 # Install required PHP extensions
-RUN docker-php-ext-install dom gd intl mbstring pdo_mysql xsl zip bcmath soap sockets opcache mcrypt pcntl
+RUN docker-php-ext-install dom gd intl mbstring pdo_mysql xsl zip bcmath soap sockets opcache
+RUN if [ 7 -eq ${VERSION%.*} ] && [ 2 -gt ${VERSION#*.} ] || [ 7 -gt ${VERSION%.*} ]; then \
+		docker-php-ext-install mcrypt pcntl; \
+	fi
 
 RUN pecl install -o -f xdebug
 
