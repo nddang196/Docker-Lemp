@@ -1,4 +1,4 @@
-ARG VERSION
+ARG VERSION=7.3
 
 FROM php:${VERSION}-fpm
 
@@ -23,7 +23,8 @@ RUN apt-get update && \
 	    git \
 	    cron \
 	    unzip \
-	    curl
+	    curl \
+	    iproute2
 
 # Configure the gd library
 RUN docker-php-ext-configure \
@@ -37,10 +38,6 @@ RUN pecl install -o -f xdebug
 # Update php config
 COPY ./config/*.ini /usr/local/etc/php/conf.d/
 
-# Install composer
-RUN curl -sS https://getcomposer.org/installer | \
-		php -- --install-dir=/usr/local/bin --filename=composer
-
 COPY ./entrypoint.sh /
 RUN sed -i -e 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
 
@@ -51,10 +48,19 @@ RUN if [ -e /usr/local/etc/php-fpm.d/zz-docker.conf ]; then \
 # Create user docker add to group www-data
 RUN useradd -u 1000 -ms /bin/bash -g www-data www
 
+# Install composer
+RUN curl -sS https://getcomposer.org/installer | \
+		php -- --install-dir=/usr/local/bin --filename=composer
+RUN su - www -c "composer global require hirak/prestissimo"
+RUN su - www -c "composer global require \"squizlabs/php_codesniffer=*\""
+
 # Download magerun n98
 RUN curl -O https://files.magerun.net/n98-magerun2.phar
 RUN chmod +x n98-magerun2.phar
 RUN mv n98-magerun2.phar /usr/bin/mgt
+
+RUN rm -rf /tmp/pear
+RUN rm -rf /var/lib/apt/lists/*
 
 RUN chown -R www /entrypoint.sh
 

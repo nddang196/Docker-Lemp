@@ -1,4 +1,7 @@
-FROM nginx
+ARG VERSION
+
+FROM nginx:$VERSION
+
 MAINTAINER VoThanh Phong <nddang196@gmail.com>
 
 ENV PHP_SERVICE php
