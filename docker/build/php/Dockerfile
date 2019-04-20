@@ -1,4 +1,4 @@
-ARG VERSION=7.3
+ARG VERSION
 
 FROM php:${VERSION}-fpm
 
