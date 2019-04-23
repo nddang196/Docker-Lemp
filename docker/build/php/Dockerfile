@@ -33,9 +33,14 @@ RUN docker-php-ext-configure \
 
 # Install required PHP extensions
 RUN docker-php-ext-install dom gd intl mbstring pdo_mysql xsl zip bcmath soap sockets opcache
-RUN if [ 7 -eq ${VERSION%.*} ] && [ 2 -gt ${VERSION#*.} ] || [ 7 -gt ${VERSION%.*} ]; then \
-		docker-php-ext-install mcrypt pcntl; \
-	fi
+RUN echo "#!/bin/bash\
+	\nVERSION=\$(php -v | awk 'NR==1 {print \$2}')\
+	\nVERSION=(\$(echo \${VERSION} | tr '.' \"\\\\n\"))\
+	\necho \$VERSION\
+	\nif [ \${VERSION[0]} -eq 7 ] && [ \${VERSION[1]} -lt 2 ] || [ \${VERSION[0]} -lt 7 ]; then\
+		\n\tdocker-php-ext-install mcrypt pcntl;\
+	\nfi" >> /php72ext.sh && chmod +x /php72ext.sh
+RUN /php72ext.sh
 
 RUN pecl install -o -f xdebug
 
