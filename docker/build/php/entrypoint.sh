@@ -36,4 +36,9 @@ if [[ "$ENABLE_SENDMAIL" == "true" ]]; then
     /etc/init.d/sendmail start
 fi
 
+# Config cron
+if [[ "$ENABLE_CRON" == "true" ]]; then
+    /etc/init.d/cron start
+fi
+
 exec "$@"

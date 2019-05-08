@@ -5,6 +5,7 @@ FROM php:${VERSION}-fpm
 MAINTAINER VoThanh Phong <nddang196@gmail.com>
 
 ENV ENABLE_SENDMAIL 'true'
+ENV ENABLE_CRON 'true'
 ENV ROOT_FOLDER /project
 ENV IS_ACTIVE_XDEBUG false
 
