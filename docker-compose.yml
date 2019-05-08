@@ -45,6 +45,7 @@ services:
         environment:
             - IS_ACTIVE_XDEBUG=${IS_ACTIVE_XDEBUG}
             - ENABLE_SENDMAIL=${ENABLE_SENDMAIL}
+            - ENABLE_CRON=${ENABLE_CRON}
             - CONFIG=${PHP_CONFIG}
         volumes:
             - ${PROJECT_MAP_FOLDER}:/project:rw
