@@ -6,8 +6,9 @@ mkdir -p ${ROOT_FOLDER}
 
 convertMageMultiSite () {
     local result=''
+    local sites=($(echo $1 | tr ';' "\n"))
 
-    for item in $1
+    for item in ${sites[@]}
     do
         item=($(echo ${item} | tr '=' "\n"))
         if [[ "$result" != '' ]]; then
@@ -22,8 +23,9 @@ convertMageMultiSite () {
 
 getServerNameMageMultiSite () {
     local result=''
+    local sites=($(echo $1 | tr ';' "\n"))
 
-    for item in $1
+    for item in ${sites[@]}
     do
         item=($(echo ${item} | tr '=' "\n"))
         if [[ "$result" != '' ]]; then
@@ -44,8 +46,8 @@ createVhostFile () {
     local isMageMulti=$5
     local mageMode=$6
     local mageType=$7
-    local mageSitesArr=($(echo $8 | tr ';' "\n"))
-    local mageSites=''
+    local mageSites=$8
+    local mageSitesFinal=''
     local fileTemp="/etc/nginx/conf.d/$1.conf"
 
     if [[ "$isMage" != "true" ]]; then # Not Magento
@@ -68,9 +70,9 @@ createVhostFile () {
                 cp /etc/nginx/vhost/https/magento-multi.conf ${fileTemp}
             fi
 
-            mageSites="$(convertMageMultiSite ${mageSitesArr[@]})"
-            server="$(getServerNameMageMultiSite ${mageSitesArr[@]})"
-            sed -i "s/!MAGE_MULTI_SITES!/$mageSites/g" ${fileTemp}
+            mageSitesFinal="$(convertMageMultiSite ${mageSites})"
+            server="$(getServerNameMageMultiSite ${mageSites})"
+            sed -i "s/!MAGE_MULTI_SITES!/$mageSitesFinal/g" ${fileTemp}
             sed -i "s/!MAGE_MODE!/$mageMode/g" ${fileTemp}
             sed -i "s/!MAGE_RUN_TYPE!/$mageType/g" ${fileTemp}
         fi
