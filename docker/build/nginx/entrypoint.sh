@@ -50,36 +50,36 @@ createVhostFile () {
 
     if [[ "$isMage" != "true" ]]; then # Not Magento
         if [[ "$isHttps" != "true" ]]; then # Not use https
-            cp -f /etc/nginx/vhost/mysite.conf $fileTemp
+            cp -f /etc/nginx/vhost/mysite.conf ${fileTemp}
         else # Use https
-            cp -f /etc/nginx/vhost/https/mysite.conf $fileTemp
+            cp -f /etc/nginx/vhost/https/mysite.conf ${fileTemp}
         fi
     else # Magento
         if [[ "$isMageMulti" != "true" ]]; then # Magento single domain
             if [[ "$isHttps" != "true" ]]; then  # Not use https
-                cp -f /etc/nginx/vhost/magento.conf $fileTemp
+                cp -f /etc/nginx/vhost/magento.conf ${fileTemp}
             else # Use https
-                cp -f /etc/nginx/vhost/https/magento.conf $fileTemp
+                cp -f /etc/nginx/vhost/https/magento.conf ${fileTemp}
             fi
         else # Magento multi domain
             if [[ "$isHttps" != "true" ]]; then  # Not use https
-                cp -f /etc/nginx/vhost/magento-multi.conf $fileTemp
+                cp -f /etc/nginx/vhost/magento-multi.conf ${fileTemp}
             else # Use https
-                cp /etc/nginx/vhost/https/magento-multi.conf $fileTemp
+                cp /etc/nginx/vhost/https/magento-multi.conf ${fileTemp}
             fi
 
             mageSites="$(convertMageMultiSite ${mageSitesArr[@]})"
-            server="$server $(getServerNameMageMultiSite ${mageSitesArr[@]})"
-            sed -i "s/!MAGE_MULTI_SITES!/$mageSites/g" $fileTemp
-            sed -i "s/!MAGE_MODE!/$mageMode/g" $fileTemp
-            sed -i "s/!MAGE_RUN_TYPE!/$mageType/g" $fileTemp
+            server="$(getServerNameMageMultiSite ${mageSitesArr[@]})"
+            sed -i "s/!MAGE_MULTI_SITES!/$mageSites/g" ${fileTemp}
+            sed -i "s/!MAGE_MODE!/$mageMode/g" ${fileTemp}
+            sed -i "s/!MAGE_RUN_TYPE!/$mageType/g" ${fileTemp}
         fi
     fi
 
-    if [[ -e $fileTemp ]]; then
-        rootFolder=$(echo $rootFolder | sed "s/\//\\\\\//g")
-        sed -i "s/!SERVER_NAME!/$server/g" $fileTemp
-        sed -i "s/!ROOT_FOLDER!/$rootFolder/g" $fileTemp
+    if [[ -e ${fileTemp} ]]; then
+        rootFolder=$(echo ${rootFolder} | sed "s/\//\\\\\//g")
+        sed -i "s/!SERVER_NAME!/$server/g" ${fileTemp}
+        sed -i "s/!ROOT_FOLDER!/$rootFolder/g" ${fileTemp}
     fi
 }
 
@@ -89,19 +89,19 @@ setupVhost () {
         return;
     fi
 
-    local serverNames=($(echo $SERVER_NAME | tr ',' "\n"))
-    local rootFolders=($(echo $ROOT_FOLDER | tr ',' "\n"))
-    local httpsServer=($(echo $IS_HTTPS | tr ',' "\n"))
-    local projectsMagento=($(echo $IS_MAGENTO | tr ',' "\n"))
-    local projectsMagentoMulti=($(echo $IS_MAGENTO_MULTI | tr ',' "\n"))
-    local magentoModes=($(echo $MAGENTO_MODE | tr ',' "\n"))
-    local magentoTypes=($(echo $MAGENTO_RUN_TYPE | tr ',' "\n"))
-    local magentoSites=($(echo $MAGENTO_MULTI_SITES | tr ',' "\n"))
+    local serverNames=($(echo ${SERVER_NAME} | tr ',' "\n"))
+    local rootFolders=($(echo ${ROOT_FOLDER} | tr ',' "\n"))
+    local httpsServer=($(echo ${IS_HTTPS} | tr ',' "\n"))
+    local projectsMagento=($(echo ${IS_MAGENTO} | tr ',' "\n"))
+    local projectsMagentoMulti=($(echo ${IS_MAGENTO_MULTI} | tr ',' "\n"))
+    local magentoModes=($(echo ${MAGENTO_MODE} | tr ',' "\n"))
+    local magentoTypes=($(echo ${MAGENTO_RUN_TYPE} | tr ',' "\n"))
+    local magentoSites=($(echo ${MAGENTO_MULTI_SITES} | tr ',' "\n"))
     local count=0
 
     for server in ${serverNames[@]}
     do
-        if [[ -e /etc/nginx/conf.d/$server.conf ]]; then
+        if [[ -e /etc/nginx/conf.d/${server}.conf ]]; then
             continue
         fi
 
@@ -113,8 +113,8 @@ setupVhost () {
         local mageType=${magentoTypes[$count]}
         local mageSites=${magentoSites[$count]}
 
-        createVhostFile $server $rootFolder $isHttps $isMage $isMageMulti $mageMode $mageType $mageSites
-        count=$(expr $count + 1)
+        createVhostFile ${server} ${rootFolder} ${isHttps} ${isMage} ${isMageMulti} ${mageMode} ${mageType} ${mageSites}
+        count=$(expr ${count} + 1)
     done
 }
 
@@ -126,10 +126,10 @@ sed -i "s/!PHP_PORT!/$PHP_PORT/g" /etc/nginx/conf.d/php.conf
 
 # Update nginx config
 if [[ "${NGINX_CONFIG}" != '' ]]; then
-	NGINX_CONFIG=($(echo $NGINX_CONFIG | tr ',' "\n"))
-	for item in $NGINX_CONFIG
+	NGINX_CONFIG=($(echo ${NGINX_CONFIG} | tr ',' "\n"))
+	for item in ${NGINX_CONFIG}
 	do
-	    item=($(echo $item | tr '=' "\n"))
+	    item=($(echo ${item} | tr '=' "\n"))
 	    configName=$(echo "${item[0]}" | tr '[:upper:]' '[:lower:]')
 	    configValue=${item[1]}
 

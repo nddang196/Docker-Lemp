@@ -25,16 +25,16 @@ services:
             - 443:443
         environment:
             - NGINX_CONFIG=
-            - SERVER_NAME=docker.local
+            - SERVER_NAME=docker.local # if project is magento multi --> empty value
             - PHP_SERVICE=php
             - PHP_PORT=9000
             - ROOT_FOLDER=/project
             - IS_HTTPS=false
             - IS_MAGENTO=true
             - IS_MAGENTO_MULTI=false
-            - MAGENTO_MODE=
-            - MAGENTO_RUN_TYPE=
-            - MAGENTO_MULTI_SITES=
+            - MAGENTO_MODE= #developer or default or production
+            - MAGENTO_RUN_TYPE= #store or website
+            - MAGENTO_MULTI_SITES= # server_name1=store_code1 or website_code1;server_name2=store_code2 or website_code2 ...
         volumes:
             - ./docker/logs/nginx/:/var/log/nginx/
             - .:/project:rw
