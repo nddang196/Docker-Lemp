@@ -46,14 +46,15 @@ RUN /php72ext.sh
 RUN pecl install -o -f xdebug
 
 # Update php config
-COPY ./config/*.ini /usr/local/etc/php/conf.d/
+COPY ini /usr/local/etc/php/conf.d/
+COPY pool /usr/local/etc/php-fpm.d/
 
 COPY ./entrypoint.sh /
 RUN sed -i -e 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
 
-RUN if [ -e /usr/local/etc/php-fpm.d/zz-docker.conf ]; then \
-		sed -i "s/listen = 9000/listen = [::]:9000/g" /usr/local/etc/php-fpm.d/zz-docker.conf; \
-	fi
+#RUN if [ -e /usr/local/etc/php-fpm.d/zz-docker.conf ]; then \
+#		sed -i "s/listen = 9000/listen = [::]:9000/g" /usr/local/etc/php-fpm.d/zz-docker.conf; \
+#	fi
 
 # Create user docker add to group www-data
 RUN useradd -u 1000 -ms /bin/bash -g www-data www

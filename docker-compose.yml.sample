@@ -49,6 +49,7 @@ services:
             - ENABLE_SENDMAIL=true
             - ENABLE_CRON=true
             - CONFIG=
+            - POOL=
         volumes:
             - .:/project:rw
         depends_on:

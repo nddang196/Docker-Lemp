@@ -31,7 +31,7 @@ services:
             - MAGENTO_MULTI_SITES=${MAGENTO_MULTI_SITES}
         volumes:
             - ${NGINX_LOG_DIR}:/var/log/nginx/
-            - ${PROJECT_MAP_FOLDER}:/project:rw
+            - ${PROJECT_MAP_FOLDER}:${ROOT_FOLDER}:rw
         depends_on:
             - php
     php:
@@ -47,8 +47,9 @@ services:
             - ENABLE_SENDMAIL=${ENABLE_SENDMAIL}
             - ENABLE_CRON=${ENABLE_CRON}
             - CONFIG=${PHP_CONFIG}
+            - POOL=${PHP_POOL_CONFIG}
         volumes:
-            - ${PROJECT_MAP_FOLDER}:/project:rw
+            - ${PROJECT_MAP_FOLDER}:${ROOT_FOLDER}:rw
         depends_on:
             - mariadb
             - redis
