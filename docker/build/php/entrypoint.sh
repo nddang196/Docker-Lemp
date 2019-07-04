@@ -15,6 +15,7 @@ if [[ ! -z "${CONFIG}" ]]; then
 
 	    sed -i "/${configName}/d" /usr/local/etc/php/conf.d/zz-docker.ini
 		printf "\n${configName} = ${configValue}" >> /usr/local/etc/php/conf.d/zz-docker.ini
+	    sed -i '/^$/d' /usr/local/etc/php/conf.d/zz-docker.ini
 	done
 fi
 
@@ -29,6 +30,7 @@ if [[ ! -z "${POOL}" ]]; then
 
 	    sed -i "/${configName}/d" /usr/local/etc/php-fpm.d/zz-docker.conf
 		printf "\n${configName} = ${configValue}" >> /usr/local/etc/php-fpm.d/zz-docker.conf
+		sed -i '/^$/d' /usr/local/etc/php-fpm.d/zz-docker.conf
 	done
 fi
 
@@ -40,6 +42,7 @@ if [[ "$IS_ACTIVE_XDEBUG" == "true" ]]; then
 
     sed -i "/xdebug.remote_host/d" /usr/local/etc/php/conf.d/z-xdebug.ini
 	printf "\nxdebug.remote_host=${getway}" >> /usr/local/etc/php/conf.d/z-xdebug.ini
+	sed -i '/^$/d' /usr/local/etc/php/conf.d/z-xdebug.ini
 
     docker-php-ext-enable xdebug
     echo 'Xdebug enabled'
