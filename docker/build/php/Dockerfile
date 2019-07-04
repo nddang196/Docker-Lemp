@@ -33,7 +33,7 @@ RUN docker-php-ext-configure \
   gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
 
 # Install required PHP extensions
-RUN docker-php-ext-install dom gd intl mbstring pdo_mysql xsl zip bcmath soap sockets opcache
+RUN docker-php-ext-install dom gd intl mbstring pdo_mysql xsl zip bcmath soap sockets opcache mysqli
 RUN echo "#!/bin/bash\
 	\nVERSION=\$(php -v | awk 'NR==1 {print \$2}')\
 	\nVERSION=(\$(echo \${VERSION} | tr '.' \"\\\\n\"))\
@@ -51,10 +51,6 @@ COPY pool /usr/local/etc/php-fpm.d/
 
 COPY ./entrypoint.sh /
 RUN sed -i -e 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
-
-#RUN if [ -e /usr/local/etc/php-fpm.d/zz-docker.conf ]; then \
-#		sed -i "s/listen = 9000/listen = [::]:9000/g" /usr/local/etc/php-fpm.d/zz-docker.conf; \
-#	fi
 
 # Create user docker add to group www-data
 RUN useradd -u 1000 -ms /bin/bash -g www-data www
