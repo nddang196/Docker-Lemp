@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 
@@ -35,22 +35,18 @@ if [[ ! -z "${POOL}" ]]; then
 fi
 
 # Config xdebug
-if [[ "$IS_ACTIVE_XDEBUG" == "true" ]]; then
+if [[ ${IS_ACTIVE_XDEBUG} -gt 0 ]]; then
     hostIp=$(ip route | awk 'NR==1 {print $3}') # Get current ip address
-    hostIp=($(echo ${hostIp} | tr '.' "\n")) # convert to array
-    getway=${hostIp[0]}.${hostIp[1]}.0.1
+    if [[ ${DOCKER_DESKTOP} -gt 0 ]]; then
+        hostIp='host.docker.internal'
+    fi
 
-    sed -i "/xdebug.remote_host/d" /usr/local/etc/php/conf.d/z-xdebug.ini
-	printf "\nxdebug.remote_host=${getway}" >> /usr/local/etc/php/conf.d/z-xdebug.ini
-	sed -i '/^$/d' /usr/local/etc/php/conf.d/z-xdebug.ini
+    sed -i "/xdebug.remote_host/d" /usr/local/etc/php/conf.d/zz-xdebug.ini
+	printf "\nxdebug.remote_host=${hostIp}" >> /usr/local/etc/php/conf.d/zz-xdebug.ini
+	sed -i '/^$/d' /usr/local/etc/php/conf.d/zz-xdebug.ini
 
     docker-php-ext-enable xdebug
     echo 'Xdebug enabled'
-fi
-
-# Config cron
-if [[ "$ENABLE_CRON" == "true" ]]; then
-    /etc/init.d/cron start
 fi
 
 exec "$@"

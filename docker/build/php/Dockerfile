@@ -19,10 +19,7 @@ RUN apt-get update && \
 	    libpng-dev \
 	    libxslt1-dev \
 	    libzip-dev \
-	    sendmail-bin \
-	    sendmail \
 	    sudo \
-	    git \
 	    cron \
 	    unzip \
 	    curl \
@@ -53,8 +50,8 @@ COPY ./entrypoint.sh /
 RUN sed -i -e 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
 
 # Create user docker add to group www-data
-RUN useradd -u 1000 -ms /bin/bash -g www-data www
-
+RUN useradd -u 1000 -ms /bin/bash -g www-data www \
+        && echo "www ALL=(ALL:ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/www
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | \
 		php -- --install-dir=/usr/local/bin --filename=composer
@@ -72,6 +69,8 @@ RUN rm -rf /var/lib/apt/lists/*
 RUN chown -R www /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
+
+VOLUME /home/www/.composer
 
 WORKDIR ${ROOT_FOLDER}
 

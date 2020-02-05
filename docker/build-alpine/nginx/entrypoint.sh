@@ -1,8 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
-
-mkdir -p ${ROOT_FOLDER}
 
 convertMageMultiSite () {
     local result=''
@@ -123,8 +121,21 @@ setupVhost () {
 setupVhost
 
 # Config php
-sed -i "s/!PHP_SERVICE!/$PHP_SERVICE/g" /etc/nginx/conf.d/php.conf
-sed -i "s/!PHP_PORT!/$PHP_PORT/g" /etc/nginx/conf.d/php.conf
+if [[ "${PHP_SERVICE}" != '' ]]; then
+	backendService=($(echo ${PHP_SERVICE} | tr ',' "\n"))
+	for item in ${backendService}
+	do
+	    itemArr=($(echo ${item} | tr ':' "\n"))
+	    serviceName=$(echo "${item[0]}" | tr '[:upper:]' '[:lower:]')
+	    if [[ -e /etc/nginx/conf.d/backend/${serviceName}.conf ]]; then
+	        continue
+	    fi
+
+	    cp /etc/nginx/include/php.conf /etc/nginx/conf.d/backend/${serviceName}.conf
+	    sed -i "s/!PHP_SERVICE!/${item}/g" /etc/nginx/conf.d/backend/${serviceName}.conf
+        sed -i "s/!PHP_SERVICE_NAME!/${serviceName}-server/g" /etc/nginx/conf.d/backend/${serviceName}.conf
+	done
+fi
 
 # Update nginx config
 if [[ "${NGINX_CONFIG}" != '' ]]; then

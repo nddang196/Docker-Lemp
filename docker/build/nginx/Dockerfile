@@ -20,7 +20,11 @@ COPY ./config/*.conf /etc/nginx/conf.d/
 COPY ./entrypoint.sh /
 
 RUN sed -i -e 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
+
 ENTRYPOINT ["/entrypoint.sh"]
+
+VOLUME /etc/nginx/conf.d
+VOLUME /etc/nginx/include
 
 EXPOSE 80 443
 

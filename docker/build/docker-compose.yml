@@ -20,8 +20,8 @@ services:
         environment:
             - NGINX_CONFIG=${NGINX_CONFIG}
             - SERVER_NAME=${SERVER_NAME}
-            - PHP_SERVICE=php
-            - PHP_PORT=9000
+            - PHP_SERVICE=${PHP_SERVICE}
+            - PHP_PORT=${PHP_PORT}
             - ROOT_FOLDER=${ROOT_FOLDER}
             - IS_HTTPS=${IS_HTTPS}
             - IS_MAGENTO=${IS_MAGENTO}
@@ -54,6 +54,11 @@ services:
             - mariadb
             - redis
             - elasticsearch
+    mail:
+        image: mailhog/mailhog
+        ports:
+            - 1025
+            - 8025
     mariadb:
         image: mariadb:${MARIA_VERSION}
         ports:
