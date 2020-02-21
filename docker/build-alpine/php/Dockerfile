@@ -14,14 +14,16 @@ RUN apk update && \
         apk add --no-cache --virtual .build-deps \
         		$PHPIZE_DEPS \
         		autoconf \
-        		bzip2-dev \
         		libjpeg-turbo-dev \
         		libmemcached-dev \
         		libpng-dev \
         		openldap-dev \
         		pcre-dev \
         		postgresql-dev \
-                zip \
+        		libxml2-dev \
+        		libxslt-dev \
+        		libzip-dev \
+        		icu-dev \
                 iproute2
 
 # Configure the gd library

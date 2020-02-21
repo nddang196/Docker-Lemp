@@ -131,6 +131,7 @@ if [[ "${PHP_SERVICE}" != '' ]]; then
 	        continue
 	    fi
 
+        mkdir -p /etc/nginx/conf.d/backend
 	    cp /etc/nginx/include/php.conf /etc/nginx/conf.d/backend/${serviceName}.conf
 	    sed -i "s/!PHP_SERVICE!/${item}/g" /etc/nginx/conf.d/backend/${serviceName}.conf
         sed -i "s/!PHP_SERVICE_NAME!/${serviceName}-server/g" /etc/nginx/conf.d/backend/${serviceName}.conf

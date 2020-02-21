@@ -2,7 +2,7 @@ FROM alpine
 
 MAINTAINER VooThanh DEV <voothanhphong@gmail.com>
 
-ENV VCL_CONFIG_PATH /etc/varnish/default.vcl
+ENV VCL_CONFIG_PATH ''
 ENV CACHE_SIZE      64M
 ENV BACKEND_HOST    0.0.0.0
 ENV BACKEND_PORT    80
