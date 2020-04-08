@@ -10,59 +10,59 @@ ENV DOCKER_DESKTOP 0
 
 # Update and add install
 RUN apk update && \
-        apk add bash && \
-        apk add --no-cache --virtual .build-deps \
-        		$PHPIZE_DEPS \
-        		autoconf \
-        		libjpeg-turbo-dev \
-        		libmemcached-dev \
-        		libpng-dev \
-        		openldap-dev \
-        		pcre-dev \
-        		postgresql-dev \
-        		libxml2-dev \
-        		libxslt-dev \
-        		libzip-dev \
-        		icu-dev \
-                iproute2
+    apk add bash && \
+    apk add gettext-dev \
+        	           aspell-dev \
+        		       recode-dev \
+        		       gmp-dev \
+                       imap-dev \
+                       bzip2-dev \
+                       libjpeg-turbo-dev \
+                       libpng-dev \
+                       freetype-dev \
+                       libxml2-dev \
+                       libxslt-dev \
+                       libzip-dev \
+                       icu-dev \
+                       tidyhtml-dev \
+                       iproute2
 
-# Configure the gd library
-RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/; \
-    docker-php-ext-configure imap --with-kerberos --with-imap-ssl; \
-    docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu; \
-    docker-php-ext-configure opcache --enable-opcache; \
-    docker-php-ext-configure zip --with-libzip; \
-    \
-    # install ext
-    docker-php-ext-install -j "$(nproc)" \
-    bcmath \
-    bz2 \
-    calendar \
-    exif \
-    gd \
-    gettext \
-    gmp \
-    imap \
-    intl \
-    ldap \
-    mysqli \
-    opcache \
-    pdo_mysql \
-    pspell \
-    recode \
-    shmop \
-    soap \
-    sockets \
-    sysvmsg \
-    sysvsem \
-    sysvshm \
-    tidy \
-    xmlrpc \
-    xsl \
-    zip; \
-    pecl install -o -f xdebug; \
-    pecl install -o -f redis; \
-    docker-php-ext-enable redis
+# Configure the ext
+RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
+RUN docker-php-ext-configure imap --with-kerberos --with-imap-ssl
+RUN docker-php-ext-configure opcache --enable-opcache
+RUN docker-php-ext-configure zip --with-libzip
+
+# install ext
+RUN docker-php-ext-install bcmath \
+                           dom \
+                           bz2 \
+                           calendar \
+                           exif \
+                           gd \
+                           gettext \
+                           gmp \
+                           imap \
+                           intl \
+                           mysqli \
+                           opcache \
+                           pdo_mysql \
+                           soap \
+                           sockets \
+                           tidy \
+                           xmlrpc \
+                           xsl \
+                           zip \
+                           pcntl \
+                           pspell \
+                           recode \
+                           shmop
+RUN pecl install -o -f xdebug-2.6.1 \
+                       redis \
+                       geoip-1.1.1
+
+RUN docker-php-ext-enable redis \
+                          geoip
 
 # Update php config
 COPY ini /usr/local/etc/php/conf.d/
@@ -87,7 +87,7 @@ RUN sed -i -e 's/\r$//' /entrypoint.sh \
     && mv n98-magerun2.phar /usr/bin/m2 \
     \
     # Remove cache
-    && rm -rf /tmp/pear \
+    && rm -rf /tmp/* \
     && rm -rf /var/cache/apk/*
 
 ENTRYPOINT ["/entrypoint.sh"]

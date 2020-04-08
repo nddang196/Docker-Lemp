@@ -5,8 +5,8 @@ set -e
 mkdir -p ${ROOT_FOLDER}
 
 # Update php config
-if [[ ! -z "${CONFIG}" ]]; then
-	CONFIG=$(echo ${CONFIG})
+if [[ ! -z "${PHP_CONFIG}" ]]; then
+	CONFIG=$(echo ${PHP_CONFIG})
 	for item in ${CONFIG[@]}
 	do
 		item=($(echo ${item} | tr '=' "\n"))
@@ -37,15 +37,18 @@ fi
 # Config xdebug
 if [[ "$IS_ACTIVE_XDEBUG" == "true" ]]; then
     hostIp=$(ip route | awk 'NR==1 {print $3}') # Get current ip address
-    hostIp=($(echo ${hostIp} | tr '.' "\n")) # convert to array
-    getway=${hostIp[0]}.${hostIp[1]}.0.1
 
     sed -i "/xdebug.remote_host/d" /usr/local/etc/php/conf.d/z-xdebug.ini
-	printf "\nxdebug.remote_host=${getway}" >> /usr/local/etc/php/conf.d/z-xdebug.ini
+	printf "\nxdebug.remote_host=${hostIp}" >> /usr/local/etc/php/conf.d/z-xdebug.ini
 	sed -i '/^$/d' /usr/local/etc/php/conf.d/z-xdebug.ini
 
     docker-php-ext-enable xdebug
     echo 'Xdebug enabled'
+fi
+
+# Config send mail
+if [[ "$ENABLE_SENDMAIL" == "true" ]]; then
+    /etc/init.d/sendmail start
 fi
 
 # Config cron
