@@ -4,6 +4,7 @@ FROM php:${VERSION}-fpm
 
 MAINTAINER VooThanh DEV <voothanhphong@gmail.com>
 
+ENV DEBIAN_FRONTEND noninteractive
 ENV ROOT_FOLDER /project
 ENV IS_ACTIVE_XDEBUG false
 ENV ENABLE_CRON false
@@ -11,7 +12,8 @@ ENV ENABLE_SENDMAIL false
 
 # Update and add install
 RUN apt-get update && \
-	apt-get install -y --no-install-recommends sendmail-bin \
+	apt-get install -y --no-install-recommends apt-utils \
+	                                           sendmail-bin \
                                                sendmail \
                                                libbz2-dev \
                                                libjpeg62-turbo-dev \
@@ -30,15 +32,32 @@ RUN apt-get update && \
                                                libxslt1-dev \
                                                libyaml-dev \
                                                libzip-dev \
+                                               librecode0 \
+                                               librecode-dev \
                                                zip \
                                                curl \
                                                cron \
-                                               iproute2
-
-COPY ext-by-version.sh /
-RUN chmod +x /ext-by-version.sh && /ext-by-version.sh
+                                               iproute2 && \
+    rm -rf /var/lib/apt/lists/*
 
 # Configure the ext library
+RUN PHP_PREFIX_VERSION=$((${PHP_VERSION%%.*} + 0)); \
+    suffix=${PHP_VERSION#*.}; \
+    PHP_SUFFIX_VERSION=$((${suffix%%.*} + 0)); \
+    if [ $PHP_PREFIX_VERSION -lt 7 ] || ([ $PHP_PREFIX_VERSION -eq 7 ] && [ $PHP_SUFFIX_VERSION -lt 2 ]); then \
+        apt-get -y install libmcrypt-dev; \
+    fi; \
+    if [ $PHP_PREFIX_VERSION -eq 7 ] && [ $PHP_SUFFIX_VERSION -gt 3 ]; then \
+        docker-php-ext-configure gd --with-jpeg=/usr/include/ \
+            --with-freetype=/usr/include/; \
+    else \
+        apt-get -y install librecode0 librecode-dev; \
+        docker-php-ext-configure gd --with-freetype-dir=/usr/include/ \
+            --with-jpeg-dir=/usr/include/ \
+            --with-png-dir=/usr/include/; \
+        docker-php-ext-configure zip --with-libzip; \
+    fi
+
 RUN docker-php-ext-configure imap --with-kerberos --with-imap-ssl
 RUN docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu
 RUN docker-php-ext-configure opcache --enable-opcache
@@ -71,6 +90,22 @@ RUN docker-php-ext-install -j$(nproc) \
                             pcntl \
                             zip
 
+RUN PHP_PREFIX_VERSION=$((${PHP_VERSION%%.*} + 0)); \
+    suffix=${PHP_VERSION#*.}; \
+    PHP_SUFFIX_VERSION=$((${suffix%%.*} + 0)); \
+    if [ $PHP_PREFIX_VERSION -lt 7 ] || ([ $PHP_PREFIX_VERSION -eq 7 ] && [ $PHP_SUFFIX_VERSION -lt 2 ]); then \
+        docker-php-ext-install mcrypt; \
+    fi; \
+    if [ $PHP_PREFIX_VERSION -eq 7 ] && [ $PHP_SUFFIX_VERSION -lt 4 ]; then \
+        docker-php-ext-install recode; \
+    fi; \
+    if [ $PHP_PREFIX_VERSION -eq 7 ] && [ $PHP_SUFFIX_VERSION -gt 3 ]; then \
+        pecl install -o -f xdebug; \
+    elif [ $PHP_PREFIX_VERSION -eq 7 ] && [ $PHP_SUFFIX_VERSION -gt 2 ]; then \
+        pecl install -o -f xdebug-2.7.1; \
+    else \
+        pecl install -o -f xdebug-2.6.1; \
+    fi
 RUN pecl install -o -f redis \
                        geoip-1.1.1
 RUN docker-php-ext-enable redis \

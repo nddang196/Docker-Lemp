@@ -83,60 +83,13 @@ createVhostFile () {
     fi
 }
 
-# Config vhost from $SERVER_NAME
-setupVhost () {
-    if [[ ${SERVER_NAME} == '' ]]; then
-        return;
-    fi
-
-    local serverNames=($(echo ${SERVER_NAME} | tr ',' "\n"))
-    local rootFolders=($(echo ${ROOT_FOLDER} | tr ',' "\n"))
-    local httpsServer=($(echo ${IS_HTTPS} | tr ',' "\n"))
-    local projectsMagento=($(echo ${IS_MAGENTO} | tr ',' "\n"))
-    local projectsMagentoMulti=($(echo ${IS_MAGENTO_MULTI} | tr ',' "\n"))
-    local magentoModes=($(echo ${MAGENTO_MODE} | tr ',' "\n"))
-    local magentoTypes=($(echo ${MAGENTO_RUN_TYPE} | tr ',' "\n"))
-    local magentoSites=($(echo ${MAGENTO_MULTI_SITES} | tr ',' "\n"))
-    local count=0
-
-    for server in ${serverNames[@]}
-    do
-        if [[ -e /etc/nginx/conf.d/${server}.conf ]]; then
-            continue
-        fi
-
-        local rootFolder=${rootFolders[$count]}
-        local isHttps=${httpsServer[$count]} 
-        local isMage=${projectsMagento[$count]}
-        local isMageMulti=${projectsMagentoMulti[$count]}
-        local mageMode=${magentoModes[$count]}
-        local mageType=${magentoTypes[$count]}
-        local mageSites=${magentoSites[$count]}
-
-        createVhostFile ${server} ${rootFolder} ${isHttps} ${isMage} ${isMageMulti} ${mageMode} ${mageType} ${mageSites}
-        count=$(expr ${count} + 1)
-    done
-}
-
-setupVhost
+if [[ ! -e /etc/nginx/conf.d/${server}.conf ]]; then
+    createVhostFile ${SERVER_NAME} ${ROOT_FOLDER} ${IS_HTTPS} ${IS_MAGENTO} ${IS_MAGENTO_MULTI} ${MAGENTO_MODE} ${MAGENTO_RUN_TYPE} ${MAGENTO_MULTI_SITES}
+fi
 
 # Config php
-if [[ "${PHP_SERVICE}" != '' ]]; then
-	backendService=($(echo ${PHP_SERVICE} | tr ',' "\n"))
-	for item in ${backendService}
-	do
-	    itemArr=($(echo ${item} | tr ':' "\n"))
-	    serviceName=$(echo "${item[0]}" | tr '[:upper:]' '[:lower:]')
-	    if [[ -e /etc/nginx/conf.d/backend/${serviceName}.conf ]]; then
-	        continue
-	    fi
-
-        mkdir -p /etc/nginx/conf.d/backend
-	    cp /etc/nginx/include/php.conf /etc/nginx/conf.d/backend/${serviceName}.conf
-	    sed -i "s/!PHP_SERVICE!/${item}/g" /etc/nginx/conf.d/backend/${serviceName}.conf
-        sed -i "s/!PHP_SERVICE_NAME!/${serviceName}-server/g" /etc/nginx/conf.d/backend/${serviceName}.conf
-	done
-fi
+sed -i "s/!PHP_SERVICE!/$PHP_SERVICE/g" /etc/nginx/conf.d/php.conf
+sed -i "s/!PHP_PORT!/$PHP_PORT/g" /etc/nginx/conf.d/php.conf
 
 # Update nginx config
 if [[ "${NGINX_CONFIG}" != '' ]]; then

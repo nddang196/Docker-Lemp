@@ -4,7 +4,9 @@ FROM nginx:alpine
 
 MAINTAINER VooThanh DEV <voothanhphong@gmail.com>
 
-ENV PHP_SERVICE php:9000
+ENV SERVER_NAME docker.io
+ENV PHP_SERVICE php
+ENV PHP_PORT 9000
 ENV IS_HTTPS false
 ENV IS_MAGENTO false
 ENV IS_MAGENTO_MULTI false
