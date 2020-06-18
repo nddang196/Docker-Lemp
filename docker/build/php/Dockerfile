@@ -111,18 +111,22 @@ RUN pecl install -o -f redis \
 RUN docker-php-ext-enable redis \
                           geoip
 
+# Create user docker add to group www-data
+RUN useradd -u 1000 -ms /bin/bash -g www-data www
+
 # Update php config
 COPY ini /usr/local/etc/php/conf.d/
 COPY pool /usr/local/etc/php-fpm.d/
 
 COPY ./entrypoint.sh /
-RUN sed -i -e 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
-
+RUN sed -i -e 's/\r$//' /entrypoint.sh \
+    && chmod +x /entrypoint.sh \
+    && chown -R www /entrypoint.sh
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | \
 		php -- --install-dir=/usr/local/bin --filename=composer \
-    && composer global require "hirak/prestissimo" \
-    && composer global require "squizlabs/php_codesniffer=*"
+    && su - www -c "composer global require hirak/prestissimo" \
+    && su - www -c "composer global require \"squizlabs/php_codesniffer=*\""
 
 # Download magerun n98
 RUN curl -O https://files.magerun.net/n98-magerun2.phar && \
@@ -133,7 +137,7 @@ RUN rm -rf /tmp/* && rm -rf /var/lib/apt/lists/*
 
 ENTRYPOINT ["/entrypoint.sh"]
 
-VOLUME /root/.composer/cache
+VOLUME /home/www/.composer/cache
 
 WORKDIR ${ROOT_FOLDER}
 
