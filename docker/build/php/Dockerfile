@@ -8,13 +8,10 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV ROOT_FOLDER /project
 ENV IS_ACTIVE_XDEBUG false
 ENV ENABLE_CRON false
-ENV ENABLE_SENDMAIL false
 
 # Update and add install
 RUN apt-get update && \
 	apt-get install -y --no-install-recommends apt-utils \
-	                                           sendmail-bin \
-                                               sendmail \
                                                libbz2-dev \
                                                libjpeg62-turbo-dev \
                                                libpng-dev \
@@ -37,6 +34,7 @@ RUN apt-get update && \
                                                zip \
                                                curl \
                                                cron \
+                                               vim \
                                                iproute2 && \
     rm -rf /var/lib/apt/lists/*
 
@@ -118,15 +116,22 @@ RUN useradd -u 1000 -ms /bin/bash -g www-data www
 COPY ini /usr/local/etc/php/conf.d/
 COPY pool /usr/local/etc/php-fpm.d/
 
+# Entrypoint
 COPY ./entrypoint.sh /
 RUN sed -i -e 's/\r$//' /entrypoint.sh \
     && chmod +x /entrypoint.sh \
     && chown -R www /entrypoint.sh
+
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | \
 		php -- --install-dir=/usr/local/bin --filename=composer \
     && su - www -c "composer global require hirak/prestissimo" \
     && su - www -c "composer global require \"squizlabs/php_codesniffer=*\""
+
+# Download sendmail for mailhog
+RUN curl -sSLO https://github.com/mailhog/mhsendmail/releases/download/v0.2.0/mhsendmail_linux_amd64 \
+   && chmod +x mhsendmail_linux_amd64 \
+   && mv mhsendmail_linux_amd64 /usr/local/bin/mhsendmail
 
 # Download magerun n98
 RUN curl -O https://files.magerun.net/n98-magerun2.phar && \

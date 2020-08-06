@@ -35,7 +35,7 @@ if [[ ! -z "${POOL}" ]]; then
 fi
 
 # Config xdebug
-if [[ "$IS_ACTIVE_XDEBUG" == "true" ]]; then
+if [[ "${IS_ACTIVE_XDEBUG}" == "true" ]]; then
     hostIp=$(ip route | awk 'NR==1 {print $3}') # Get current ip address
 
     sed -i "/xdebug.remote_host/d" /usr/local/etc/php/conf.d/z-xdebug.ini
@@ -46,13 +46,8 @@ if [[ "$IS_ACTIVE_XDEBUG" == "true" ]]; then
     echo 'Xdebug enabled'
 fi
 
-# Config send mail
-if [[ "$ENABLE_SENDMAIL" == "true" ]]; then
-    /etc/init.d/sendmail start
-fi
-
 # Config cron
-if [[ "$ENABLE_CRON" == "true" ]]; then
+if [[ "${ENABLE_CRON}" == "true" ]]; then
     /etc/init.d/cron start
 fi
 
