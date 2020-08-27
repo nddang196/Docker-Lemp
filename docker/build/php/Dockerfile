@@ -11,31 +11,32 @@ ENV ENABLE_CRON false
 
 # Update and add install
 RUN apt-get update && \
-	apt-get install -y --no-install-recommends apt-utils \
-                                               libbz2-dev \
-                                               libjpeg62-turbo-dev \
-                                               libpng-dev \
-                                               libfreetype6-dev \
-                                               libgeoip-dev \
-                                               libgmp-dev \
-                                               libmagickwand-dev \
-                                               libmagickcore-dev \
-                                               libc-client-dev \
-                                               libkrb5-dev \
-                                               libicu-dev \
-                                               libldap2-dev \
-                                               libpspell-dev \
-                                               libtidy-dev \
-                                               libxslt1-dev \
-                                               libyaml-dev \
-                                               libzip-dev \
-                                               librecode0 \
-                                               librecode-dev \
-                                               zip \
-                                               curl \
-                                               cron \
-                                               vim \
-                                               iproute2 && \
+	apt-get install -y --no-install-recommends \
+	    apt-utils \
+        libbz2-dev \
+        libjpeg62-turbo-dev \
+        libpng-dev \
+        libfreetype6-dev \
+        libgeoip-dev \
+        libgmp-dev \
+        libmagickwand-dev \
+        libmagickcore-dev \
+        libc-client-dev \
+        libkrb5-dev \
+        libicu-dev \
+        libldap2-dev \
+        libpspell-dev \
+        libtidy-dev \
+        libxslt1-dev \
+        libyaml-dev \
+        libzip-dev \
+        librecode0 \
+        librecode-dev \
+        zip \
+        curl \
+        cron \
+        vim \
+        iproute2 && \
     rm -rf /var/lib/apt/lists/*
 
 # Configure the ext library
@@ -43,12 +44,14 @@ RUN PHP_PREFIX_VERSION=$((${PHP_VERSION%%.*} + 0)); \
     suffix=${PHP_VERSION#*.}; \
     PHP_SUFFIX_VERSION=$((${suffix%%.*} + 0)); \
     if [ $PHP_PREFIX_VERSION -lt 7 ] || ([ $PHP_PREFIX_VERSION -eq 7 ] && [ $PHP_SUFFIX_VERSION -lt 2 ]); then \
+        apt-get update && \
         apt-get -y install libmcrypt-dev; \
     fi; \
     if [ $PHP_PREFIX_VERSION -eq 7 ] && [ $PHP_SUFFIX_VERSION -gt 3 ]; then \
         docker-php-ext-configure gd --with-jpeg=/usr/include/ \
             --with-freetype=/usr/include/; \
     else \
+        apt-get update && \
         apt-get -y install librecode0 librecode-dev; \
         docker-php-ext-configure gd --with-freetype-dir=/usr/include/ \
             --with-jpeg-dir=/usr/include/ \
@@ -126,7 +129,8 @@ RUN sed -i -e 's/\r$//' /entrypoint.sh \
 RUN curl -sS https://getcomposer.org/installer | \
 		php -- --install-dir=/usr/local/bin --filename=composer \
     && su - www -c "composer global require hirak/prestissimo" \
-    && su - www -c "composer global require \"squizlabs/php_codesniffer=*\""
+    && su - www -c "composer global require \"squizlabs/php_codesniffer=*\"" \
+    && su - www -c "composer global require phpunit/phpunit"
 
 # Download sendmail for mailhog
 RUN curl -sSLO https://github.com/mailhog/mhsendmail/releases/download/v0.2.0/mhsendmail_linux_amd64 \
