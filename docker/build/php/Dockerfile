@@ -96,6 +96,9 @@ RUN PHP_PREFIX_VERSION=$((${PHP_VERSION%%.*} + 0)); \
     PHP_SUFFIX_VERSION=$((${suffix%%.*} + 0)); \
     if [ $PHP_PREFIX_VERSION -lt 7 ] || ([ $PHP_PREFIX_VERSION -eq 7 ] && [ $PHP_SUFFIX_VERSION -lt 2 ]); then \
         docker-php-ext-install mcrypt; \
+        curl -o m2 https://files.magerun.net/n98-magerun2-3.2.0.phar; \
+    else \
+        curl -o m2 https://files.magerun.net/n98-magerun2.phar; \
     fi; \
     if [ $PHP_PREFIX_VERSION -eq 7 ] && [ $PHP_SUFFIX_VERSION -lt 4 ]; then \
         docker-php-ext-install recode; \
@@ -138,9 +141,7 @@ RUN curl -sSLO https://github.com/mailhog/mhsendmail/releases/download/v0.2.0/mh
    && mv mhsendmail_linux_amd64 /usr/local/bin/mhsendmail
 
 # Download magerun n98
-RUN curl -O https://files.magerun.net/n98-magerun2.phar && \
-    chmod +x n98-magerun2.phar && \
-    mv n98-magerun2.phar /usr/bin/m2
+RUN chmod +x m2 && mv m2 /usr/bin/m2
 
 RUN rm -rf /tmp/* && rm -rf /var/lib/apt/lists/*
 
