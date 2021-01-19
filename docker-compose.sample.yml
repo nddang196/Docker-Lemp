@@ -46,10 +46,9 @@ services:
             - 9000
         environment:
             - IS_ACTIVE_XDEBUG=true
-            - ENABLE_SENDMAIL=true
             - ENABLE_CRON=true
-            - CONFIG=
-            - POOL=
+            - PHP_CONFIG=
+            - FPM_POOL=
         volumes:
             - .:/project:rw
         depends_on:

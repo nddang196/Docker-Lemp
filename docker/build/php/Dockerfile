@@ -130,8 +130,8 @@ RUN sed -i -e 's/\r$//' /entrypoint.sh \
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | \
-		php -- --install-dir=/usr/local/bin --filename=composer \
-    && su - www -c "composer global require hirak/prestissimo" \
+		php -- --install-dir=/usr/local/bin --version=1.10.19 --filename=composer \
+	&& su - www -c "composer global require hirak/prestissimo" \
     && su - www -c "composer global require \"squizlabs/php_codesniffer=*\"" \
     && su - www -c "composer global require phpunit/phpunit"
 
