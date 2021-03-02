@@ -38,9 +38,15 @@ fi
 if [[ "${IS_ACTIVE_XDEBUG}" == "true" ]]; then
     hostIp=$(ip route | awk 'NR==1 {print $3}') # Get current ip address
 
-    sed -i "/xdebug.remote_host/d" /usr/local/etc/php/conf.d/z-xdebug.ini
-    printf "\nxdebug.remote_host=${hostIp}" >> /usr/local/etc/php/conf.d/z-xdebug.ini
-    sed -i '/^$/d' /usr/local/etc/php/conf.d/z-xdebug.ini
+    if [[ -f "/usr/local/etc/php/conf.d/z-xdebug.ini" ]]; then
+        sed -i "/xdebug.remote_host/d" /usr/local/etc/php/conf.d/z-xdebug.ini
+        printf "\nxdebug.remote_host=${hostIp}" >> /usr/local/etc/php/conf.d/z-xdebug.ini
+        sed -i '/^$/d' /usr/local/etc/php/conf.d/z-xdebug.ini
+    else
+        sed -i "/xdebug.client_host/d" /usr/local/etc/php/conf.d/z-xdebug3.ini
+        printf "\nxdebug.client_host=${hostIp}" >> /usr/local/etc/php/conf.d/z-xdebug3.ini
+        sed -i '/^$/d' /usr/local/etc/php/conf.d/z-xdebug3.ini
+    fi
 
     docker-php-ext-enable xdebug
     echo 'Xdebug enabled'

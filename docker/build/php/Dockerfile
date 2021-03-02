@@ -122,6 +122,13 @@ RUN useradd -u 1000 -ms /bin/bash -g www-data www
 COPY ini /usr/local/etc/php/conf.d/
 COPY pool /usr/local/etc/php-fpm.d/
 
+RUN xdebug3=$(php -v | grep -i "xdebug v3"); \
+    \
+    if [[ "${xdebug3}" == "" ]]; then \
+       rm /usr/local/etc/php/conf.d/z-xdebug3.ini; \
+    else \
+       rm /usr/local/etc/php/conf.d/z-xdebug.ini; \
+    fi
 # Entrypoint
 COPY ./entrypoint.sh /
 RUN sed -i -e 's/\r$//' /entrypoint.sh \
@@ -131,9 +138,7 @@ RUN sed -i -e 's/\r$//' /entrypoint.sh \
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | \
 		php -- --install-dir=/usr/local/bin --version=1.10.19 --filename=composer \
-	&& su - www -c "composer global require hirak/prestissimo" \
-    && su - www -c "composer global require \"squizlabs/php_codesniffer=*\"" \
-    && su - www -c "composer global require phpunit/phpunit"
+	&& su - www -c "composer global require hirak/prestissimo"
 
 # Download sendmail for mailhog
 RUN curl -sSLO https://github.com/mailhog/mhsendmail/releases/download/v0.2.0/mhsendmail_linux_amd64 \
